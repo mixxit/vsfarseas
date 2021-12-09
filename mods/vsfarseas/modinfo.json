@@ -1,0 +1,11 @@
+{
+    "type": "code",
+    "modid": "vsfarseas",
+    "name": "vsfarseas",
+    "author": "mixxit",
+    "description": "Vintage Story Mod that adds a Far Seas Trader mechanic",
+    "version": "1.5.9-rc.2",
+    "dependency": {
+        "game": ""
+    }
+}
