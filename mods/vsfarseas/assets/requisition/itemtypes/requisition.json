@@ -1,0 +1,14 @@
+﻿{
+    "code": "requisition",
+    "class": "requisition",
+    "maxstacksize": 1,
+    "attributes": {
+        "displaycaseable": true,
+        "shelvable": true
+    },
+    "texture": { "base": "game:item/lore/scroll" },
+    "creativeinventory": {
+        "general": [ "*" ],
+        "items": [ "*" ]
+    }
+}
