@@ -113,7 +113,7 @@ namespace vsfarseas.src
             {
                 new WorldInteraction
                 {
-                    ActionLangCode = "requisition:heldhelp-readrequisition",
+                    ActionLangCode = "vsfarseas:heldhelp-readrequisition",
                     MouseButton = EnumMouseButton.Right
                 }
             }.Append(base.GetHeldInteractionHelp(inSlot));

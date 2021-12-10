@@ -37,7 +37,7 @@ namespace vsFarSeas.src
             try
             {
                 string requisitionBody = "This is a requisition body";
-                Item item = player.Entity.World.GetItem(new AssetLocation("requisition:requisition"));
+                Item item = player.Entity.World.GetItem(new AssetLocation("vsfarseas:requisition"));
                 if (!(item is ItemRequisition))
                 {
                     player.SendMessage(groupId, "Could not find requisition when creating", EnumChatType.CommandError);
