@@ -1,5 +1,7 @@
 ﻿{
     "item-requisition": "Requisition Scroll",
-    "block-farseasbell": "Far Seas Bell",
-    "heldhelp-readrequisition": "Reads the Requisition"
+    "block-farseasbell": "Delivery Bell",
+    "heldhelp-readrequisition": "Reads the Requisition",
+    "bellrungtoosoon": "You have already rung the bell, please wait for the return delivery.",
+    "bellrung": "You have rung the Bell. All containers within a {0} block range will be delivered in the next few moments."
 }

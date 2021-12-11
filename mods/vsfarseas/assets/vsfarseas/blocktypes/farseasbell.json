@@ -3,6 +3,8 @@
     "class": "farseasbell",
     "creativeinventory": { "general": [ "*" ] },
     "blockmaterial": "Metal",
+    "behaviors": [ { "name": "BlockBehaviorFarSeasBell" } ],
+    "entityClass": "BlockEntityFarSeasBell",
     "drawtype": "json",
     "textures": {
         "horizontals": { "base": "game:block/metal/plate/blackbronze" },

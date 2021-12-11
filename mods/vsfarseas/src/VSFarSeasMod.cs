@@ -4,6 +4,8 @@ using System;
 using Vintagestory.API.Server;
 using vsfarseas.src;
 using Vintagestory.API.MathTools;
+using vsfarseas.src.BlockBehaviors;
+using vsfarseas.src.BlockEntities;
 
 namespace vsFarSeas.src
 {
@@ -15,10 +17,21 @@ namespace vsFarSeas.src
         {
             VSFarSeasModConfigFile.Current = api.LoadOrCreateConfig<VSFarSeasModConfigFile>(typeof(VSFarSeasMod).Name + ".json");
             api.World.Config.SetInt("returnVesselTimeInSeconds", VSFarSeasModConfigFile.Current.ReturnVesselTimeInSeconds);
+            api.World.Config.SetInt("farSeasBellChestDistance", VSFarSeasModConfigFile.Current.FarSeasBellChestDistance);
             base.StartPre(api);
             api.RegisterItemClass("requisition", typeof(ItemRequisition));
+            api.RegisterBlockBehaviorClass("BlockBehaviorFarSeasBell", typeof(BlockBehaviorFarSeasBell));
+            api.RegisterBlockEntityClass("BlockEntityFarSeasBell", typeof(BlockEntityFarSeasBell));
         }
 
+        public int GetReturnVesselTimeInSeconds()
+        {
+            return api.World.Config.GetInt("returnVesselTimeInSeconds");
+        }
+        public int GetFarSeasBellChestDistance()
+        {
+            return api.World.Config.GetInt("farSeasBellChestDistance");
+        }
 
         public override void Start(ICoreAPI api)
         {
@@ -36,7 +49,6 @@ namespace vsFarSeas.src
         {
             try
             {
-                string requisitionBody = "This is a requisition body";
                 Item item = player.Entity.World.GetItem(new AssetLocation("vsfarseas:requisition"));
                 if (!(item is ItemRequisition))
                 {
@@ -65,5 +77,6 @@ namespace vsFarSeas.src
     {
         public static VSFarSeasModConfigFile Current { get; set; }
         public int ReturnVesselTimeInSeconds = 300;
+        public int FarSeasBellChestDistance = 5;
     }
 }

@@ -66,6 +66,8 @@
     <Content Include="modinfo.json" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="src\BlockBehaviors\BlockBehaviorFarSeasBell.cs" />
+    <Compile Include="src\BlockEntities\BlockEntityFarSeasBell.cs" />
     <Compile Include="src\Foundation\Extensions\ApiExtensions.cs" />
     <Compile Include="src\GuiRequisition.cs" />
     <Compile Include="src\ItemRequisition.cs" />
