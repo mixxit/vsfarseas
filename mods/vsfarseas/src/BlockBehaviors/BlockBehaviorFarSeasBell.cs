@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -59,18 +60,80 @@ namespace vsfarseas.src.BlockBehaviors
 
         private void CollectAndSendAllCargo(IWorldAccessor world, IServerPlayer senderPlayer, Vintagestory.API.MathTools.BlockPos position, int distance)
         {
-            List<BlockPos> containers = GetNearbyContainers(world, position, distance);
-
-            foreach(var container in containers)
+            List<BlockPos> containersPoss = GetNearbyContainersPositions(world, position, distance);
+            var items = new Dictionary<string, int>();
+            var requisitions = new List<string>();
+            foreach (var containerPos in containersPoss)
             {
-                world.BlockAccessor.SetBlock(0,container);
-                world.BlockAccessor.TriggerNeighbourBlockUpdate(container);
+                BlockEntityContainer containerEntity = world.BlockAccessor.GetBlockEntity(containerPos) as BlockEntityContainer;
+                if (containerEntity != null && containerEntity.GetContentStacks() != null)
+                {
+                    foreach(var itemStack in containerEntity.GetContentStacks())
+                    {
+                        if (itemStack == null || itemStack.Item == null)
+                            continue;
+
+                        if (itemStack.Item is ItemRequisition)
+                        {
+                            senderPlayer.SendMessage(GlobalConstants.GeneralChatGroup, $"Found Requisition", EnumChatType.OwnMessage);
+                            requisitions.Add(((ItemRequisition)itemStack.Item).GetRequisitionJson(itemStack));
+                            continue;
+                        }
+
+                        if (!items.ContainsKey(itemStack.Item.Code.ToString()))
+                            items.Add(itemStack.Item.Code.ToString(), 0);
+
+                        items[itemStack.Item.Code.ToString()] += itemStack.StackSize;
+                    }
+                }
+
+                world.BlockAccessor.SetBlock(0, containerPos);
+                world.BlockAccessor.TriggerNeighbourBlockUpdate(containerPos);
             }
 
-            senderPlayer.SendMessage(GlobalConstants.GeneralChatGroup, $"Sent {containers.Count()} containers", EnumChatType.OwnMessage);
+            RewardRequisitions(senderPlayer, containersPoss, requisitions, items);
+
+            senderPlayer.SendMessage(GlobalConstants.GeneralChatGroup, $"Sent {containersPoss.Count()} containers", EnumChatType.OwnMessage);
         }
 
-        List<BlockPos> GetNearbyContainers(IWorldAccessor world, BlockPos pos, int distance)
+        private void RewardRequisitions(IServerPlayer senderPlayer, List<BlockPos> positionsToPlaceContainers, List<string> requisitionJsons, Dictionary<string, int> items)
+        {
+            if (requisitionJsons == null || items == null || requisitionJsons.Count() < 1 || items.Count() < 1)
+                return;
+
+            foreach(var requisitionJson in requisitionJsons)
+            {
+                Dictionary<string, int> requisitions = JsonConvert.DeserializeObject<Dictionary<string, int>>(requisitionJson);
+                if (requisitions.Count() < 1)
+                    continue;
+
+                bool anyRequisitionItemFailed = false;
+                foreach(var requisitionItem in requisitions.Keys)
+                {
+                    if (!items.ContainsKey(requisitionItem))
+                    {
+                        anyRequisitionItemFailed = true;
+                        continue;
+                    }
+
+                    // Has to be full shipment, not partial
+                    if (items[requisitionItem] < requisitions[requisitionItem])
+                    {
+                        anyRequisitionItemFailed = true;
+                        continue;
+                    }
+
+                    items[requisitionItem] -= requisitions[requisitionItem];
+                }
+
+                if (anyRequisitionItemFailed)
+                    senderPlayer.SendMessage(GlobalConstants.GeneralChatGroup, $"Failed to complete a requisition", EnumChatType.OwnMessage);
+                else
+                    senderPlayer.SendMessage(GlobalConstants.GeneralChatGroup, $"Fully completed a requisition!", EnumChatType.OwnMessage);
+            }
+        }
+
+        List<BlockPos> GetNearbyContainersPositions(IWorldAccessor world, BlockPos pos, int distance)
         {
             List<BlockPos> positions = new List<BlockPos>();
             int lowerRange = (distance / 2)*-1;

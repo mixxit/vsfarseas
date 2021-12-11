@@ -55,6 +55,9 @@ namespace vsfarseas.src
             foreach(var key in requisitions.Keys)
             {
                 Item item = api.World.GetItem(new AssetLocation(key));
+                if (item == null)
+                    continue;
+
                 var name = Lang.Get(item.Code?.Domain + ":item-" + item.Code?.Path);
                 output += name + " Qty: " + requisitions[key] + Environment.NewLine;
             }
@@ -90,7 +93,7 @@ namespace vsfarseas.src
             {
                 var requisitionItem = api.World.Items
                     .Where(x => x.Code != null && api.World.GridRecipes.Select(r => r.Output.Code?.ToString()).Contains(x.Code.ToString())) // Limits to recipe crafts only
-                    .Select(e => e.Code?.GetName()).Where(w => !requisitions.Keys.Contains(w)).OrderBy(x => api.World.Rand.Next()).Take(1).FirstOrDefault();
+                    .Select(e => e.Code?.Domain + ":" + e.Code?.Path).Where(w => !requisitions.Keys.Contains(w)).OrderBy(x => api.World.Rand.Next()).Take(1).FirstOrDefault();
                 if (requisitionItem == null)
                     continue;
 
