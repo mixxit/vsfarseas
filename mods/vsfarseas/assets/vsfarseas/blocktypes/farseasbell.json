@@ -1,0 +1,23 @@
+{
+    "code": "farseasbell",
+    "class": "farseasbell",
+    "creativeinventory": { "general": [ "*" ] },
+    "blockmaterial": "Metal",
+    "drawtype": "json",
+    "textures": {
+        "horizontals": { "base": "game:block/metal/plate/blackbronze" },
+        "verticals": { "base": "game:block/metal/plate/blackbronze" }
+    },
+    "shape": { "base": "block/farseasbell" },
+    "resistance": 3.5,
+    "sounds": {
+        "place": "game:block/anvil",
+        "walk": "game:walk/stone"
+    },
+    "sidesolid": {
+        "all": false
+    },
+    "sideopaque": {
+        "all": false
+    }
+}

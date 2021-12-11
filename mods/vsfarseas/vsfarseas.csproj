@@ -75,8 +75,10 @@
     <Folder Include="assets\game\" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="assets\vsfarseas\blocktypes\farseasbell.json" />
     <None Include="assets\vsfarseas\itemtypes\requisition.json" />
     <None Include="assets\vsfarseas\lang\en.json" />
+    <None Include="assets\vsfarseas\shapes\block\farseasbell.json" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
