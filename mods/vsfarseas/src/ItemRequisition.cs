@@ -8,6 +8,7 @@ using Vintagestory.API.Common;
 using Vintagestory.API.Config;
 using Vintagestory.API.Server;
 using Vintagestory.API.Util;
+using vsFarSeas.src;
 
 namespace vsfarseas.src
 {
@@ -88,12 +89,14 @@ namespace vsfarseas.src
             // Pick random items
             var requisitionSize = api.World.Rand.Next(1, 10);
             var requisitions = new Dictionary<string, int>();
+            VSFarSeasMod mod = api.World.Api.ModLoader.GetModSystem<VSFarSeasMod>();
 
-            for(int i = 0; i < requisitionSize; i++)
+
+            for (int i = 0; i < requisitionSize; i++)
             {
                 var requisitionItem = api.World.Items
                     .Where(x => x.Code != null && api.World.GridRecipes.Select(r => r.Output.Code?.ToString()).Contains(x.Code.ToString())) // Limits to recipe crafts only
-                    .Select(e => e.Code?.Domain + ":" + e.Code?.Path).Where(w => !requisitions.Keys.Contains(w)).OrderBy(x => api.World.Rand.Next()).Take(1).FirstOrDefault();
+                    .Select(e => e.Code?.Domain + ":" + e.Code?.Path).Where(w => mod.GetTradeableItems().Contains(w) && !requisitions.Keys.Contains(w)).OrderBy(x => api.World.Rand.Next()).Take(1).FirstOrDefault();
                 if (requisitionItem == null)
                     continue;
 
