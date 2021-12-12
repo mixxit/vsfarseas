@@ -53,7 +53,10 @@ namespace vsfarseas.src
                 return output;
             }
 
-            foreach(var key in requisitions.Keys)
+            VSFarSeasMod mod = api.World.Api.ModLoader.GetModSystem<VSFarSeasMod>();
+            float total = 0;
+
+            foreach (var key in requisitions.Keys)
             {
                 Item item = api.World.GetItem(new AssetLocation(key));
                 if (item == null)
@@ -61,8 +64,17 @@ namespace vsfarseas.src
 
                 var name = Lang.Get(item.Code?.Domain + ":item-" + item.Code?.Path);
                 output += name + " Qty: " + requisitions[key] + Environment.NewLine;
+
+                if (!mod.GetTradeableItems().ContainsKey(key))
+                    return "Error loading prices";
+
+                total += mod.GetTradeableItems()[key]* requisitions[key];
             }
 
+            total = (float)Math.Floor(total);
+
+            output += Environment.NewLine;
+            output += $"Total: {total}" + Environment.NewLine;
             output += Environment.NewLine;
             output += "Trade Commissioner A. Berhart" + Environment.NewLine;
             return output;
@@ -96,7 +108,7 @@ namespace vsfarseas.src
             {
                 var requisitionItem = api.World.Items
                     .Where(x => x.Code != null && api.World.GridRecipes.Select(r => r.Output.Code?.ToString()).Contains(x.Code.ToString())) // Limits to recipe crafts only
-                    .Select(e => e.Code?.Domain + ":" + e.Code?.Path).Where(w => mod.GetTradeableItems().Contains(w) && !requisitions.Keys.Contains(w)).OrderBy(x => api.World.Rand.Next()).Take(1).FirstOrDefault();
+                    .Select(e => e.Code?.Domain + ":" + e.Code?.Path).Where(w => mod.GetTradeableItems().Keys.Contains(w) && !requisitions.Keys.Contains(w)).OrderBy(x => api.World.Rand.Next()).Take(1).FirstOrDefault();
                 if (requisitionItem == null)
                     continue;
 

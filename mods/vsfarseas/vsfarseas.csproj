@@ -63,6 +63,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="assets\vsfarseas\textures\item\coin.png" />
     <Content Include="modinfo.json" />
   </ItemGroup>
   <ItemGroup>
@@ -70,6 +71,7 @@
     <Compile Include="src\BlockEntities\BlockEntityFarSeasBell.cs" />
     <Compile Include="src\Foundation\Extensions\ApiExtensions.cs" />
     <Compile Include="src\GuiRequisition.cs" />
+    <Compile Include="src\InventoryBaseExt.cs" />
     <Compile Include="src\ItemRequisition.cs" />
     <Compile Include="src\VSFarSeasMod.cs" />
   </ItemGroup>
@@ -78,6 +80,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="assets\vsfarseas\blocktypes\farseasbell.json" />
+    <None Include="assets\vsfarseas\itemtypes\coin.json" />
     <None Include="assets\vsfarseas\itemtypes\requisition.json" />
     <None Include="assets\vsfarseas\lang\en.json" />
     <None Include="assets\vsfarseas\shapes\block\farseasbell.json" />

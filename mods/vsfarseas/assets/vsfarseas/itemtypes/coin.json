@@ -1,0 +1,14 @@
+﻿{
+    "code": "coin",
+    "class": "coin",
+    "maxstacksize": 9999,
+    "attributes": {
+        "displaycaseable": true,
+        "shelvable": true
+    },
+    "texture": { "base": "item/coin" },
+    "creativeinventory": {
+        "general": [ "*" ],
+        "items": [ "*" ]
+    }
+}

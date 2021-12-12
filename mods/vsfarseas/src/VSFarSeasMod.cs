@@ -16,7 +16,7 @@ namespace vsFarSeas.src
     public class VSFarSeasMod : ModSystem
     {
         private ICoreAPI api;
-        private List<string> tradeableItems = new List<string>();
+        
 
         public override void StartPre(ICoreAPI api)
         {
@@ -55,7 +55,7 @@ namespace vsFarSeas.src
 
         private void LoadTradeAbleItems()
         {
-            tradeableItems = new List<String>();
+            VSFarSeasModPrices.Instance.TradeableItems = new Dictionary<string, float>();
             foreach (EntityProperties type in api.World.EntityTypes)
             {
                 if (!type.Class.Equals("EntityTrader"))
@@ -71,10 +71,11 @@ namespace vsFarSeas.src
 
                 foreach (var tradeItem in tradeProps.Buying.List)
                 {
-                    if (tradeableItems.Contains(tradeItem.Code?.Domain + ":" + tradeItem.Code?.Path))
+                    if (VSFarSeasModPrices.Instance.TradeableItems.ContainsKey(tradeItem.Code?.Domain + ":" + tradeItem.Code?.Path))
                         continue;
 
-                    tradeableItems.Add(tradeItem.Code?.Domain + ":" + tradeItem.Code?.Path);
+                    var price = tradeItem.Price.nextFloat();
+                    VSFarSeasModPrices.Instance.TradeableItems.Add(tradeItem.Code?.Domain + ":" + tradeItem.Code?.Path, price);
                 }
             }
         }
@@ -123,9 +124,9 @@ namespace vsFarSeas.src
 
         }
 
-        internal List<string> GetTradeableItems()
+        internal Dictionary<string,float> GetTradeableItems()
         {
-            return this.tradeableItems;
+            return VSFarSeasModPrices.Instance.TradeableItems;
         }
     }
 
@@ -134,5 +135,18 @@ namespace vsFarSeas.src
         public static VSFarSeasModConfigFile Current { get; set; }
         public int ReturnVesselTimeInSeconds = 300;
         public int FarSeasBellChestDistance = 5;
+    }
+
+    public class VSFarSeasModPrices
+    {
+        private static readonly Lazy<VSFarSeasModPrices> lazy =
+        new Lazy<VSFarSeasModPrices>(() => new VSFarSeasModPrices());
+        public Dictionary<string, float> TradeableItems { get; set; }
+
+        public static VSFarSeasModPrices Instance { get { return lazy.Value; } }
+
+        private VSFarSeasModPrices()
+        {
+        }
     }
 }
