@@ -68,6 +68,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="src\BlockBehaviors\BlockBehaviorFarSeasBell.cs" />
+    <Compile Include="src\PendingOutboundCargo.cs" />
     <Compile Include="src\BlockEntities\BlockEntityFarSeasBell.cs" />
     <Compile Include="src\Foundation\Extensions\ApiExtensions.cs" />
     <Compile Include="src\GuiRequisition.cs" />

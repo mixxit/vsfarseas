@@ -28,7 +28,6 @@ namespace vsFarSeas.src
             api.RegisterBlockBehaviorClass("BlockBehaviorFarSeasBell", typeof(BlockBehaviorFarSeasBell));
             api.RegisterBlockEntityClass("BlockEntityFarSeasBell", typeof(BlockEntityFarSeasBell));
         }
-
         public int GetReturnVesselTimeInSeconds()
         {
             return api.World.Config.GetInt("returnVesselTimeInSeconds");

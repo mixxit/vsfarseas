@@ -48,25 +48,22 @@ namespace vsfarseas.src.BlockBehaviors
             }
 
             ((BlockEntityFarSeasBell)block).SetLastRung(DateTimeOffset.Now.ToUnixTimeSeconds());
-
             player.SendMessage(GlobalConstants.GeneralChatGroup, Lang.Get("vsfarseas:bellrung",mod.GetFarSeasBellChestDistance()), EnumChatType.OwnMessage);
             world.PlaySoundAt(new AssetLocation("game:sounds/creature/bell/bell.ogg"), player, null, false, 32, 3);
-
-            CollectAndSendAllCargo(world, player, blockSel.Position, mod.GetFarSeasBellChestDistance());
-
+            CollectAndSendAllCargo(block, mod.GetFarSeasBellChestDistance());
             handling = EnumHandling.PreventDefault;
             return true;
         }
 
-        private void CollectAndSendAllCargo(IWorldAccessor world, IServerPlayer senderPlayer, Vintagestory.API.MathTools.BlockPos position, int distance)
-        {
-            List<BlockPos> containersPoss = GetNearbyContainersPositions(world, position, distance);
+        private void CollectAndSendAllCargo(BlockEntity block, int distance)
+        { 
+            List<BlockPos> containersPoss = GetNearbyContainersPositions(block.Api.World, block.Pos, distance);
             var items = new Dictionary<string, int>();
             var requisitions = new List<string>();
             
             foreach (var containerPos in containersPoss)
             {
-                BlockEntityContainer containerEntity = world.BlockAccessor.GetBlockEntity(containerPos) as BlockEntityContainer;
+                BlockEntityContainer containerEntity = block.Api.World.BlockAccessor.GetBlockEntity(containerPos) as BlockEntityContainer;
                 if (containerEntity != null && containerEntity.GetContentStacks() != null)
                 {
                     foreach(var itemStack in containerEntity.GetContentStacks())
@@ -76,7 +73,6 @@ namespace vsfarseas.src.BlockBehaviors
 
                         if (itemStack.Item is ItemRequisition)
                         {
-                            senderPlayer.SendMessage(GlobalConstants.GeneralChatGroup, $"Found Requisition", EnumChatType.OwnMessage);
                             requisitions.Add(((ItemRequisition)itemStack.Item).GetRequisitionJson(itemStack));
                             continue;
                         }
@@ -88,141 +84,13 @@ namespace vsfarseas.src.BlockBehaviors
                     }
                 }
 
-                world.BlockAccessor.SetBlock(0, containerPos);
-                world.BlockAccessor.TriggerNeighbourBlockUpdate(containerPos);
+                block.Api.World.BlockAccessor.SetBlock(0, containerPos);
+                block.Api.World.BlockAccessor.TriggerNeighbourBlockUpdate(containerPos);
             }
 
-            PlaceNewRequisitionChests(senderPlayer,containersPoss);
-            RewardRequisitions(senderPlayer, containersPoss, requisitions, items);
-            
-            senderPlayer.SendMessage(GlobalConstants.GeneralChatGroup, $"Sent {containersPoss.Count()} containers", EnumChatType.OwnMessage);
-        }
-
-        private void PlaceNewRequisitionChests(IServerPlayer senderPlayer, List<BlockPos> positionsToPlaceContainers)
-        {
-            var requisitionItemStack = new ItemStack(senderPlayer.Entity.World.GetItem(new AssetLocation("vsfarseas:requisition")));
-            for (int i = 0; i < senderPlayer.Entity.World.Rand.Next(1, 3); i++)
-            {
-                var itemStack = requisitionItemStack.Clone();
-                ((ItemRequisition)itemStack.Item).SetRandomRequisition(itemStack);
-                AddChestRewards(senderPlayer.Entity.World, positionsToPlaceContainers, itemStack, 1);
-            }
-        }
-
-        private void RewardRequisitions(IServerPlayer senderPlayer, List<BlockPos> positionsToPlaceContainers, List<string> requisitionJsons, Dictionary<string, int> items)
-        {
-            if (requisitionJsons == null || items == null || requisitionJsons.Count() < 1 || items.Count() < 1)
-                return;
-            VSFarSeasMod mod = senderPlayer.Entity.World.Api.ModLoader.GetModSystem<VSFarSeasMod>();
-
-            float grandTotal = 0;
-            foreach (var requisitionJson in requisitionJsons)
-            {
-                Dictionary<string, int> requisitions = JsonConvert.DeserializeObject<Dictionary<string, int>>(requisitionJson);
-                if (requisitions.Count() < 1)
-                    continue;
-
-                bool anyRequisitionItemFailed = false;
-                float total = 0;
-                foreach(var requisitionItem in requisitions.Keys)
-                {
-                    if (!items.ContainsKey(requisitionItem))
-                    {
-                        anyRequisitionItemFailed = true;
-                        continue;
-                    }
-                    
-                    var achievedQty = 0;
-                    var itemPrice = mod.GetTradeableItems()[requisitionItem];
-                    
-
-                    // Has to be full shipment, for bonus reward
-                    if (items[requisitionItem] < requisitions[requisitionItem])
-                    {
-                        achievedQty = items[requisitionItem];
-                        items[requisitionItem] -= items[requisitionItem];
-                        anyRequisitionItemFailed = true;
-                        continue;
-                    } else
-                    {
-                        achievedQty = requisitions[requisitionItem];
-                        items[requisitionItem] -= requisitions[requisitionItem];
-                    }
-
-                    total += itemPrice * achievedQty;
-                }
-
-                total = (float)Math.Floor(total);
-
-                float bonus = 0;
-                if (!anyRequisitionItemFailed)
-                    bonus = (total / 100) * 10;
-
-                bonus = (float)Math.Floor(bonus);
-
-                if (anyRequisitionItemFailed)
-                    senderPlayer.SendMessage(GlobalConstants.GeneralChatGroup, $"Partially completed a requisition! Reward: {total}", EnumChatType.OwnMessage);
-                else
-                    senderPlayer.SendMessage(GlobalConstants.GeneralChatGroup, $"Fully completed a requisition! Reward: {total} + Bonus: {bonus}", EnumChatType.OwnMessage);
-
-                float coinCount = total + bonus;
-                grandTotal += coinCount;
-            }
-
-            var coinItemStack = new ItemStack(senderPlayer.Entity.World.GetItem(new AssetLocation("vsfarseas:coin")));
-            AddChestRewards(senderPlayer.Entity.World, positionsToPlaceContainers, coinItemStack, (int)grandTotal);
-        }
-
-        private void AddChestRewards(IWorldAccessor world, List<BlockPos> positionsToPlaceContainers, ItemStack itemStack, int countLeftToReward)
-        {
-            if (positionsToPlaceContainers == null || positionsToPlaceContainers.Count() < 1)
-                return;
-
-            if (countLeftToReward < 1)
-                return;
-
-            if (itemStack == null)
-                return;
-
-            // Add to inventory
-            foreach (var chestPosition in positionsToPlaceContainers)
-            {
-                if (countLeftToReward < 1)
-                    break;
-
-                var blockEntity = world.BlockAccessor.GetBlockEntity(chestPosition);
-
-                // Something else is there
-                if (blockEntity != null && !(blockEntity is BlockEntityGenericTypedContainer))
-                    continue;
-
-                if (blockEntity == null)
-                {
-                    Block chest = world.GetBlock(new AssetLocation("game:chest-east"));
-                    world.BlockAccessor.SetBlock(chest.BlockId, chestPosition);
-                    world.BlockAccessor.SpawnBlockEntity(chest.EntityClass, chestPosition);
-                    blockEntity = (BlockEntityGenericTypedContainer)world.BlockAccessor.GetBlockEntity(chestPosition);
-                    if (((BlockEntityGenericTypedContainer)blockEntity).Inventory.FirstEmptySlot() == null)
-                        continue;
-
-                    blockEntity.MarkDirty();
-                }
-
-                // Something else is there
-                if (blockEntity != null && !(blockEntity is BlockEntityGenericTypedContainer))
-                    continue;
-
-                if (countLeftToReward > itemStack.Item.MaxStackSize)
-                    itemStack.StackSize = itemStack.Item.MaxStackSize;
-                else
-                    itemStack.StackSize = countLeftToReward;
-
-                countLeftToReward -= itemStack.StackSize;
-
-                var slotId = ((BlockEntityGenericTypedContainer)blockEntity).Inventory.GetSlotId(((BlockEntityGenericTypedContainer)blockEntity).Inventory.FirstEmptySlot());
-                ((BlockEntityGenericTypedContainer)blockEntity).Inventory[slotId].Itemstack = itemStack;
-                ((BlockEntityGenericTypedContainer)blockEntity).Inventory[slotId].MarkDirty();
-            }
+            if (block.Api is ICoreServerAPI)
+                ((ICoreServerAPI)block.Api).SendMessageToGroup(GlobalConstants.InfoLogChatGroup, $"The Trader has departed", EnumChatType.Notification);
+            ((BlockEntityFarSeasBell)block).SetPendingCargo(new PendingOutboundCargo(requisitions, items, containersPoss));
         }
 
         List<BlockPos> GetNearbyContainersPositions(IWorldAccessor world, BlockPos pos, int distance)
