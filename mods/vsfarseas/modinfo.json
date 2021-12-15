@@ -4,7 +4,7 @@
     "name": "vsfarseas",
     "author": "mixxit",
     "description": "Vintage Story Mod that adds a Far Seas Trader mechanic [Icons by BizmasterStudios,7Soul1]",
-    "version": "1.5.9-rc.3",
+    "version": "1.5.9-rc.4",
     "dependency": {
         "game": ""
     }

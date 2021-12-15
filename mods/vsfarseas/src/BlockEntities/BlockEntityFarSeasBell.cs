@@ -53,7 +53,7 @@ namespace vsfarseas.src.BlockEntities
                 return;
 
             if (Api is ICoreServerAPI)
-                ((ICoreServerAPI)Api).SendMessageToGroup(GlobalConstants.InfoLogChatGroup, $"The Trader has arrived", EnumChatType.Notification);
+                ((ICoreServerAPI)Api).SendMessageToGroup(GlobalConstants.GeneralChatGroup, $"The Trader has arrived", EnumChatType.Notification);
 
             PlaceNewRequisitionChests(pendingOutboundCargo.GetOldContainerPositions());
             RewardRequisitions(pendingOutboundCargo.GetOldContainerPositions(), pendingOutboundCargo.GetRequisitions(), pendingOutboundCargo.GetItems());
@@ -125,10 +125,10 @@ namespace vsfarseas.src.BlockEntities
                 bonus = (float)Math.Floor(bonus);
 
                 if (anyRequisitionItemFailed && Api is ICoreServerAPI)
-                    ((ICoreServerAPI)Api).SendMessageToGroup(GlobalConstants.InfoLogChatGroup, $"Partially completed a requisition! Reward: {total}", EnumChatType.Notification);
+                    ((ICoreServerAPI)Api).SendMessageToGroup(GlobalConstants.GeneralChatGroup, $"Partially completed a requisition! Reward: {total}", EnumChatType.Notification);
 
                 if (!anyRequisitionItemFailed && Api is ICoreServerAPI)
-                    ((ICoreServerAPI)Api).SendMessageToGroup(GlobalConstants.InfoLogChatGroup, $"Fully completed a requisition! Reward: {total} + Bonus: {bonus}", EnumChatType.Notification);
+                    ((ICoreServerAPI)Api).SendMessageToGroup(GlobalConstants.GeneralChatGroup, $"Fully completed a requisition! Reward: {total} + Bonus: {bonus}", EnumChatType.Notification);
 
                 float coinCount = total + bonus;
                 grandTotal += coinCount;

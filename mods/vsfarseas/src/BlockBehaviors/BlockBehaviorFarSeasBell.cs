@@ -89,7 +89,7 @@ namespace vsfarseas.src.BlockBehaviors
             }
 
             if (block.Api is ICoreServerAPI)
-                ((ICoreServerAPI)block.Api).SendMessageToGroup(GlobalConstants.InfoLogChatGroup, $"The Trader has departed", EnumChatType.Notification);
+                ((ICoreServerAPI)block.Api).SendMessageToGroup(GlobalConstants.GeneralChatGroup, $"The Trader has departed", EnumChatType.Notification);
             ((BlockEntityFarSeasBell)block).SetPendingCargo(new PendingOutboundCargo(requisitions, items, containersPoss));
         }
 
